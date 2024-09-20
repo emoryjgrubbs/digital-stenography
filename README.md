@@ -40,7 +40,3 @@ In the example provided, the script inverts the colors of the image by subtracti
 - `modify_image.py`: The Python script to modify the image pixels.
 - `requirements.txt`: Lists the required Python packages (`Pillow`).
 - `README.md`: This file.
-
-## License
-
-This project is open-source and available under the [MIT License](LICENSE).

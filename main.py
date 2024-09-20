@@ -26,4 +26,18 @@ def modify_pixel(pixel):
     
     return (new_r, new_g, new_b)
 
-clone_image("test.png", "clone.png")
+
+def text_to_binary(message):
+    return ''.join([format(ord(char), '08b') for char in message])
+
+def text_to_binary_to_text(binary_message):
+    chars = [binary_message[i:i+8] for i in range(0, len(binary_message), 8)]
+    return ''.join([chr(int(char, 2)) for char in chars])
+
+def main():
+    clone_image("test.png", "clone.png")
+
+if __name__ == "__main__":
+    main()
+    print(text_to_binary("Hello World"))
+    print(text_to_binary_to_text(text_to_binary("Hello World")))

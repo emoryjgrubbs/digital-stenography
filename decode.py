@@ -12,11 +12,11 @@ def extract_message_from_image(image_path):
     end_of_message = '1111111111111110'
 
     # Loop through pixels
-    for x in range(width):
-        for y in range(height):
+    for y in range(height):
+        for x in range(width):
             r, g, b = pixels[x, y]
             binary_message += str(r & 1)
-            
+
             # Check if the end of the message is reached
             if binary_message.endswith(end_of_message):
                 binary_message = binary_message[:-len(end_of_message)]

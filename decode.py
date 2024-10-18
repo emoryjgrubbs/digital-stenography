@@ -1,14 +1,16 @@
 from PIL import Image
+import sys
+
 
 def extract_message_from_image(image_path):
     image = Image.open(image_path)
     pixels = image.load()
-    
+
     width, height = image.size
-    
+
     binary_message = ""
     end_of_message = '1111111111111110'
-    
+
     # Loop through pixels
     for x in range(width):
         for y in range(height):
@@ -22,14 +24,20 @@ def extract_message_from_image(image_path):
 
     return "No hidden message found."
 
+
 def binary_to_text(binary_message):
     chars = [binary_message[i:i+8] for i in range(0, len(binary_message), 8)]
     return ''.join([chr(int(char, 2)) for char in chars])
 
+
 def main():
-    image_path = "clone.png"
-    hidden_message = extract_message_from_image(image_path)
-    print(f"Hidden message: {hidden_message}")
+    if len(sys.argv) == 2:
+        image_path = sys.argv[1]
+        hidden_message = extract_message_from_image(image_path)
+        print(f"Hidden message: {hidden_message}")
+    else:
+        print("No Image Path Provided.")
+
 
 if __name__ == "__main__":
     main()

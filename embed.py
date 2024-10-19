@@ -163,52 +163,132 @@ def get_message_type(message):
     return status
 
 
-# status -1 incorrect number of args
+# status -6 too many args
+# status -5 too few args
+# status -4 : -2 overloaded input
+# status -1 undefined behavior flag given as image/message
 # status 0 nothing happened
 # status 1 all good, secret message is a string
 # status 2 all good, secret message is a txt
 def handle_argv(argv):
     status = 0
-    input_file = 'test-images/airplaneU2.png'
-    output_file = 'output.png'
-    secret_message = ''
-    match len(argv):
-        case 4:
-            status = get_message_type(sys.argv[3])
-            input_file = sys.argv[1]
-            output_file = sys.argv[2]
-            secret_message = sys.argv[3]
-        case 3:
-            status = get_message_type(sys.argv[2])
-            input_file = sys.argv[1]
-            secret_message = sys.argv[2]
-        case 2:
-            status = get_message_type(sys.argv[1])
-            secret_message = sys.argv[1]
-        case 1:
-            status = -1
-        case _:
-            status = -2
-    return [status, input_file, output_file, secret_message]
+    force = False
+    input_file = ""
+    output_file = ""
+    secret_message = ""
+    unflagged_args = []
+    current_flag = ""
+    for arg in argv:
+        # if there is a current flag & arg is a flag
+        if current_flag != "" and arg[0:1] == '-':
+            return [-1]
+        match arg:
+            # flags
+            case '--string':
+                current_flag = 'input string'
+            case '-s':
+                current_flag = 'input string'
+            case '--text-file':
+                current_flag = 'text file'
+            case '-t':
+                current_flag = 'text file'
+            case '--input-image':
+                current_flag = 'input image'
+            case '-i':
+                current_flag = 'input image'
+            case '--output-image':
+                current_flag = 'output image'
+            case '-o':
+                current_flag = 'output image'
+            case '-f':
+                force = True
+            # input arg
+            case _:
+                if current_flag != "":
+                    match current_flag:
+                        case 'input string':
+                            if secret_message != "":
+                                return [-2]
+                            else:
+                                status = 1
+                                secret_message = arg
+                        case 'text file':
+                            if secret_message != "":
+                                return [-2] 
+                            else:
+                                status = 2
+                                secret_message = arg
+                        case 'input image':
+                            if input_file != "":
+                                return [-3]
+                            else:
+                                input_file = arg
+                        case 'output image':
+                            if output_file != "":
+                                return [-4]
+                            else:
+                                output_file = arg
+                    current_flag = ""
+                else:
+                    unflagged_args.append(arg)
+
+    # handle unflagged args
+    if secret_message == "":
+        if len(unflagged_args) > 0:
+            secret_message = unflagged_args[-1]
+            unflagged_args = unflagged_args[:len(unflagged_args)-1]
+            if secret_message[len(secret_message)-4:] == '.txt':
+                status = 2
+            else:
+                status = 1
+        else:
+            return [-5]
+    if input_file == "":
+        if len(unflagged_args) > 0:
+            input_file = unflagged_args[0]
+            unflagged_args = unflagged_args[1:len(unflagged_args)]
+        else:
+            return [-5]
+    if output_file == "":
+        if len(unflagged_args) > 0:
+            output_file = unflagged_args[0]
+            unflagged_args = unflagged_args[1:len(unflagged_args)]
+        else:
+            output_file = "output.png"
+
+    if len(unflagged_args) == 0:
+        return [status, input_file, output_file, secret_message, force]
+    else:
+        return [-6]
 
 
 def main():
-    standardized_argv = handle_argv(sys.argv)
+    standardized_argv = handle_argv(sys.argv[1:len(sys.argv)])
     status = standardized_argv[0]
-    input_file = standardized_argv[1]
-    output_file = standardized_argv[2]
-    secret_message = standardized_argv[3]
+    if status > 0:
+        input_file = standardized_argv[1]
+        output_file = standardized_argv[2]
+        secret_message = standardized_argv[3]
+        force = standardized_argv[4]
 
     match status:
-        case -2:
+        case -6:
             print("Error, Too Many Arguments")
-        case -1:
+        case -5:
             print("Error, Too Few Arguments")
+        case -4:
+            print("Error, Multiple Output Files Given")
+        case -3:
+            print("Error, Multiple Input Files Given")
+        case -2:
+            print("Error, Multiple Messages Given")
+        case -1:
+            print("Error, Flag Given as Input to Flag")
         case 1:
             if not os.path.isfile(input_file):
                 print("Error, Input Image Does Not Exist")
-            # if os.path.isfile(output_file) and not force:
-            #    print("Warning, Output Image Exists\n If Your Wish to Overwrite, Specify -f?")
+            elif os.path.isfile(output_file) and not force:
+                print("Warning, Output Image Exists\nOverwrite? Specify -f")
             else:
                 binary_message = text_to_binary(secret_message)
                 if modify_image_string(input_file, output_file, binary_message) != -1:
@@ -218,9 +298,9 @@ def main():
         case 2:
             if not os.path.isfile(input_file):
                 print("Error, Input Image Does Not Exist")
-            # if os.path.isfile(output_file) and not force:
-            #    print("Warning, Output Image Exists\n If Your Wish to Overwrite, Specify -f?")
-            if not os.path.isfile(secret_message):
+            if os.path.isfile(output_file) and not force:
+                print("Warning, Output Image Exists\nOverwrite? Specify -f")
+            elif not os.path.isfile(secret_message):
                 print("Error, Message File Does Not Exist")
             else:
                 if modify_image_txt(input_file, output_file, secret_message) != -1 :

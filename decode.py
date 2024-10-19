@@ -49,7 +49,6 @@ def binary_to_text(binary_message):
 def main():
     if len(sys.argv) == 2:
         image_path = sys.argv[1]
-        print("Hidden message: ")  # , end='')
         extract_message_from_image(image_path)
     else:
         print("No Image Path Provided.")

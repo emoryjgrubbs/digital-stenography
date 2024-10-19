@@ -163,7 +163,10 @@ def get_message_type(message):
     return status
 
 
-# status -1 incorrect number of args
+# status -6 too many args
+# status -5 too few args
+# status -4 : -2 overloaded input
+# status -1 undefined behavior flag given as image/message
 # status 0 nothing happened
 # status 1 all good, secret message is a string
 # status 2 all good, secret message is a txt
@@ -176,9 +179,11 @@ def handle_argv(argv):
     unflagged_args = []
     current_flag = ""
     for arg in argv:
+        # if there is a current flag & arg is a flag
         if current_flag != "" and arg[0:1] == '-':
             return [-1]
         match arg:
+            # flags
             case '--string':
                 current_flag = 'input string'
             case '-s':
@@ -197,6 +202,7 @@ def handle_argv(argv):
                 current_flag = 'output image'
             case '-f':
                 force = True
+            # input arg
             case _:
                 if current_flag != "":
                     match current_flag:
@@ -224,12 +230,17 @@ def handle_argv(argv):
                                 output_file = arg
                     current_flag = ""
                 else:
-                    unflagged_args += arg
+                    unflagged_args.append(arg)
 
+    # handle unflagged args
     if secret_message == "":
         if len(unflagged_args) > 0:
             secret_message = unflagged_args[-1]
             unflagged_args = unflagged_args[:len(unflagged_args)-1]
+            if secret_message[len(secret_message)-4:] == '.txt':
+                status = 2
+            else:
+                status = 1
         else:
             return [-5]
     if input_file == "":
@@ -252,7 +263,7 @@ def handle_argv(argv):
 
 
 def main():
-    standardized_argv = handle_argv(sys.argv)
+    standardized_argv = handle_argv(sys.argv[1:len(sys.argv)])
     status = standardized_argv[0]
     if status > 0:
         input_file = standardized_argv[1]

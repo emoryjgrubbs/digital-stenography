@@ -2,11 +2,6 @@
 
 This Python script allows you to access and modify pixel values of an image while keeping the image header intact. It uses the `Pillow` library to manipulate images and provides a simple example of color inversion.
 
-## Features
-
-- **Access pixel data**: Modify each pixel's RGB values.
-- **Preserve the image header**: The header information remains unchanged when saving the modified image.
-
 ## Prerequisites
 
 Make sure you have Python installed on your system. You also need the `Pillow` library to run this script.
@@ -22,21 +17,41 @@ Make sure you have Python installed on your system. You also need the `Pillow` l
 
 ## Usage
 
-1. Place your image in the project directory (e.g., `test.png`).
-2. Run the Python script to modify the image:
+1. Run the Python program to encode the message
 
+Example:
     ```bash
-    python modify_image.py
+    python embed.py [input image] [output image] [message]
+    ```
+    
+    input image: the cover image to be modified
+    output image: the modified stego image (if unspecified, default to output.png)
+    message: the text to be hidden (either simple string text or the path to a file ending in .txt)
+
+    flags can be used as an alternative format, they can appear in any order, and any unflagged input will be matched in the standard order to the needed input
+    --input-image [input image]
+        -i [input image]
+    --output-image [output image]
+        -o [output image]
+    --string [message]
+        -s [message]
+    --text-file [message]
+        -t [message]
+
+    -f: overwrite the image specified by the [output image]
+
+2. Run the Python program to decode the message
+    
+    ```bash
+    python decode.py [input image]
     ```
 
-    The script will create a new image file (e.g., `clone_with_mods.png`) with modified pixel values.
+    input image: the stego image to decode
 
-### Example Modification
-
-In the example provided, the script inverts the colors of the image by subtracting the RGB values from 255. You can customize the modification logic within the script as needed.
 
 ## Files
 
-- `modify_image.py`: The Python script to modify the image pixels.
+- `embed.py`: Program to encode the stego image
+- `decode.py`: Program to decode the stego image
 - `requirements.txt`: Lists the required Python packages (`Pillow`).
 - `README.md`: This file.
